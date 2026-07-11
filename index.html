@@ -490,47 +490,32 @@
             console.error("Ошибка загрузки мем-архива:", error);
         }
     }
-    // ==========================================
+        // ==========================================
     // ЛОГИКА ОТПРАВКИ ЛАЙКА НА МЕМ ЧЕРЕЗ ИНТЕРНЕТ-МОСТ
     // ==========================================
     async function sendLike(rowNumber) {
-        // Если уже лайкнули — блокируем повторный клик на клиенте
         if (localStorage.getItem('meme_liked_' + rowNumber) === 'true') return;
-        
         var btn = document.getElementById('likeBtn_' + rowNumber);
         var countSpan = document.getElementById('likeCount_' + rowNumber);
         if (!btn || !countSpan) return;
         
-        // Временная блокировка на момент отправки запроса
         btn.disabled = true;
         btn.style.opacity = "0.6";
-        
         try {
-            // Шлем запрос на сервер Гугла, сообщая номер строки мема
             await fetch(GOOGLE_SCRIPT_URL, {
                 method: 'POST',
                 mode: 'no-cors',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    action: 'addMemeLike',
-                    row: rowNumber
-                })
+                body: JSON.stringify({ action: 'addMemeLike', row: rowNumber })
             });
-            
-            // Так как в режиме no-cors ответ прочесть нельзя, сразу засчитываем лайк вживую на экране
             var current = parseInt(countSpan.innerText) || 0;
             countSpan.innerText = current + 1;
-            
-            // Красим плашку в вечный сочный розовый неон
             btn.style.background = "#ff007f";
             btn.style.color = "#fff";
             btn.style.boxShadow = "0 0 10px #ff007f";
             btn.style.opacity = "1";
             btn.style.cursor = "default";
-            
-            // ЗАПОМИНАЕМ В БРАУЗЕРЕ: этот мем лайкнут!
             localStorage.setItem('meme_liked_' + rowNumber, 'true');
-            
         } catch (error) {
             console.error("Ошибка при отправке лайка:", error);
             btn.disabled = false;
@@ -538,7 +523,16 @@
         }
     }
 
-    // Логика тиканья часов в терминале (ОСТАЁТСЯ БЕЗ ИЗМЕНЕНИЙ)
+    // ЛОГИКА ВХОДА В ПРИВАТНУЮ КОМНАТУ ПО КОДУ (ВОЗВРАЩЕНА ИЗ СТРАХОВКИ)
+    function enterViaCode() {
+        var code = document.getElementById('secretCodeInput').value.trim();
+        if (!code) { alert("Введите имя комнаты!"); return; }
+        if (code === "Группа_1" || code === "Группа_2" || code === "VIP_зона" || code === "админка") {
+            openSecretChat(code);
+        } else { alert("❌ Неверный код!"); }
+    }
+
+    // Логика тиканья часов в терминале
     function updateTerminalTime() {
         var clock = document.getElementById('terminalTime');
         if (clock) { clock.innerText = new Date().toLocaleTimeString('ru-RU'); }
@@ -551,7 +545,6 @@
         try {
             var response = await fetch(GOOGLE_SCRIPT_URL + '?action=getWallPosts');
             var textData = await response.text();
-            
             var jsonStart = textData.indexOf('{');
             var jsonEnd = textData.lastIndexOf('}') + 1;
             if (jsonStart === -1 || jsonEnd === 0) return;
@@ -559,7 +552,6 @@
             
             var container = document.getElementById('homeWallPreview');
             if (!container) return;
-            
             if (!data.posts || data.posts.length === 0) {
                 container.innerHTML = '<div style="color:gray;">На Публичной Стене пока нет записей...</div>';
                 return;
@@ -567,21 +559,18 @@
             
             var html = '';
             var count = 0;
-            // Берем только последние 3 поста из таблицы
             for (var i = data.posts.length - 1; i >= 0; i--) {
                 if (count >= 3) break; 
                 var row = data.posts[i];
                 if (!row || row.length < 3) continue;
                 
-                var d = row ? String(row) : '00.00 00:00';
-                var user = row || 'Аноним';
-                var text = row || '';
+                var d = row[0];
+                var user = row[1];
+                var text = row[2];
                 
-                // Ваша крутая подмена изображения на плашку [📸 Изображение]
                 if (text.indexOf("[IMG]") !== -1) {
                     text = text.split("[IMG]")[0] + " <span style='color:#ff007f;'>[📸 Изображение]</span>";
                 }
-                
                 html += '<div style="border-left: 2px solid #e94560; padding-left: 10px; margin-bottom: 8px; font-size: 0.95em;">';
                 html += '  <span style="color:#6f7180; font-size:0.85em;">['+d+']</span> <b style="color:#e94560;">'+user+'</b>: ' + text;
                 html += '</div>';
@@ -595,3 +584,4 @@
 </script>
 </body>
 </html>
+
