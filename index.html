@@ -2,739 +2,81 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <title>Retro Net</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dreamcore Тест Связи</title>
     <style>
-        html, body {
-            margin: 0; padding: 0; height: 100%;
-            background-color: #3f2254; color: #ffffff; font-family: monospace;   
-        }
-        .site-wrapper { display: flex; flex-direction: column; height: 100vh; }
-        header { 
-            background: #d421a4; padding: 15px; font-size: 24px; 
-            text-align: center; font-weight: bold; box-shadow: 0 4px 10px rgba(0,0,0,0.3); z-index: 10;
-            text-shadow: 0 0 8px rgba(255, 255, 255, 0.6);
-        }
-        .main-layout { display: flex; flex: 1; overflow: hidden; }
-        nav { 
-            width: 220px; background: #4b3145; padding: 20px 15px;
-            display: flex; flex-direction: column; gap: 12px;
-            border-right: 3px double #c000ff; box-sizing: border-box;
-        }
-        nav button { 
-            background: #342d32; color: white; border: 2px solid #c000ff; 
-            padding: 12px 10px; cursor: pointer; font-weight: bold; text-align: left; width: 100%;
-            box-shadow: 0 0 5px rgba(192, 0, 255, 0.2);
-            transition: 0.2s;
-        }
-        nav button:hover { 
-            background: #c000ff; 
-            transform: translateX(5px);
-            box-shadow: 0 0 12px #c000ff;
-        }
-        .content-area { flex: 1; padding: 30px; overflow-y: auto; background-color: #3f2254; }
-        .page { 
-            display: none; background: #342d32; border: 3px double #c000ff; 
-            padding: 25px; border-radius: 4px; 
-            box-shadow: 0 0 15px rgba(192, 0, 255, 0.1);
-        }
-        .active { 
-            display: flex !important; 
-            flex-direction: column; 
-        }
-        message { border-bottom: 1px dashed #c000ff; padding: 12px 0; }
-        .meta { color: #888; font-size: 0.8em; }
-        .secret-door {
-            margin-top: 40px; padding: 20px; border: 3px dashed #d421a4; 
-            background: #342d32; box-shadow: 0 0 15px rgba(212, 33, 164, 0.3); border-radius: 8px;
-        }
-        .home-texture {
-            background-image: url('https://docs.google.com/uc?export=download&id=1zCjFDK-dJSjdH0aKshPeeBN7n62QFIKr') !important;
-            background-size: cover;
-            background-position: center;
-            border: 2px solid #c000ff !important;
-        }
+        body { font-family: monospace; background: #1a1a1a; color: #00ff00; padding: 20px; }
+        #chatBox { height: 250px; border: 1px solid #00ff00; overflow-y: auto; padding: 10px; margin-bottom: 10px; background: #000; }
+        .controls { display: flex; gap: 10px; }
+        input { flex: 1; padding: 5px; background: #222; color: #00ff00; border: 1px solid #00ff00; }
+        button { padding: 5px 15px; background: #00ff00; color: #000; border: none; cursor: pointer; font-weight: bold; }
     </style>
 </head>
 <body>
-<div class="site-wrapper">
-   <header>💾 ПОДПОЛЬНЫЙ МЕССЕНДЖЕР v1.0</header>
-    <div class="main-layout">
-        <nav>
-            <button onclick="switchPage('home')">🛸 [ГЛАВНАЯ]</button>
-            <button onclick="switchPage('wall'); loadWall();">📟 БЛОГ / СТЕНА</button>
-            <button onclick="switchPage('player')">🎧 МУЗОН</button>
-            <button onclick="switchPage('memes'); loadMemeGrid();">🎭 СКЛАД МЕМОВ</button>
 
-            <!-- Кнопка секретного чата теперь тоже перекрашена в неоновый розовый под цвет Шапки -->
-            <button id="navChatBtn" style="display:none; background: #d421a4; color: white;" onclick="switchPage('chat'); loadChat();">🔒 СЕКРЕТНЫЙ ЧАТ</button>
-            <div id="roomsSubMenu" style="display: none; flex-direction: column; gap: 5px; padding-left: 15px; margin-top: 5px;"></div>
-        </nav>
-        
-        <div class="content-area" style="display: flex; flex-direction: column;">
-            <!-- Страница: Главная (ИДЕАЛЬНЫЕ ДИВЫ И ВЫРОВНЕННАЯ СЕТКА) -->
-            <div id="page-home" class="page active home-texture">
-                <!-- ЯРУС 1: АНИМИРОВАННЫЙ ТЕРМИНАЛ С ИНДИКАТОРАМИ -->
-                <div style="background: rgba(75, 49, 69, 0.6); backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px); padding: 25px; border: 1px solid #c000ff; border-radius: 4px; margin-bottom: 20px; display: flex; align-items: center; justify-content: space-between; gap: 20px; box-shadow: 0 0 15px rgba(192, 0, 255, 0.2);">
-                    <div style="flex: 1;">
-                        <h2 style="color: #d421a4; margin-top: 0; font-family: monospace; font-size: 1.4em; letter-spacing: 1px; text-shadow: 0 0 5px rgba(212,33,164,0.5);">🛸 ПОДПОЛЬНЫЙ ХАБ СЕТИ</h2>
-                        <p style="font-family: monospace; line-height: 1.6; color: #ddd; margin: 5px 0;">Добро пожаловать в симуляцию. Логи фиксируются в облаке Google.</p>
-                        
-                        <!-- Живые динамические индикаторы -->
-                        <div style="font-family: monospace; font-size: 0.85em; color: #aaa; margin-top: 15px; display: flex; flex-direction: column; gap: 5px;">
-                            <div>🟢 СТАТУС СЕТИ: <span style="color: #c000ff; font-weight: bold; text-shadow: 0 0 5px #c000ff;">ОНЛАЙН</span></div>
-                            <div>⏳ СИСТЕМНОЕ ВРЕМЯ: <span id="terminalTime" style="color: #d421a4; text-shadow: 0 0 5px #d421a4;">00:00:00</span></div>
-                            <div>👁️ НАБЛЮДАТЕЛИ: <span style="color: #fff;">АКТИВНЫ (1.5 человека)</span></div>
-                        </div>
-                    </div>
-                    
-                                        <!-- РЕТРО ГИФКА-АНИМАЦИЯ (Картинка с руками в небесах Закулисья) -->
-                    <img src="https://i.pinimg.com/originals/e4/05/57/e405576abd45eb0c08a8cb7e5b540765.gif" style="width: 300px; height: 300px; border-radius: 100%; filter: drop-shadow(0 0 12px #d421a4); flex-shrink: 0;">
-                </div>
+    <h2>Проверка моста: GitHub ➡️ Google</h2>
+    <div id="chatBox">Загрузка сообщений из Гугл-Таблицы...</div>
 
-                <!-- ЯРУС 2: ЖИВАЯ ЛЕНТА СВЕЖИХ ПОСТОВ СО СТЕНЫ -->
-                <div style="background: rgba(75, 49, 69, 0.3); padding: 25px; border: 1px dashed #c000ff; border-radius: 4px; margin-bottom: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.2);">
-                    <h3 style="color: #c000ff; margin-top: 0; font-family: monospace; font-size: 1em; border-bottom: 1px dashed #c000ff; padding-bottom: 5px; text-shadow: 0 0 3px rgba(192,0,255,0.3);">📟 ПОСЛЕДНИЕ СОБЫТИЯ НА СТЕНЕ (АВТО-ОБНОВЛЕНИЕ)</h3>
-                    
-                    <!-- Контейнер, куда код сам выведет 3 последних поста -->
-                    <div id="homeWallPreview" style="display: flex; flex-direction: column; gap: 10px; margin-top: 15px; font-family: monospace; font-size: 0.9em; color: #ddd;">
-                        Сканирование Публичной Стены...
-                    </div>
-                </div>
+    <div class="controls">
+        <input type="text" id="messageInput" placeholder="Напишите что-нибудь...">
+        <button onclick="sendMessage()">Отправить в Облако</button>
+    </div>
 
-                <!-- ПАРЯЩАЯ ПЛАШКА ПАРОЛЯ -->
-                <div style="position: fixed; bottom: 20px; right: 30px; left: 250px; background: #4b3145; border: 1px solid #c000ff; padding: 15px; border-radius: 4px; box-shadow: 0 0 20px rgba(192, 0, 255, 0.4); display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: 20px; z-index: 9999;">
-                    <div style="font-weight: bold; color: #fff; font-family: monospace; font-size: 0.95em; white-space: nowrap; display: flex; align-items: center; gap: 8px;">
-                        🗝️ <span style="color: #d421a4; text-shadow: 0 0 4px rgba(212,33,164,0.4);">Вход в приватную комнату по коду:</span>
-                    </div>
-                    <input type="text" id="secretCodeInput" placeholder="Например: Группа_1..." style="width: 100%; box-sizing: border-box; padding: 10px; background: #342d32; color: #fff; border: 1px solid #c000ff; font-family: monospace; font-size: 0.9em; border-radius: 2px;">
-                    <button onclick="enterViaCode()" style="padding: 10px 25px; background: #d421a4; color: #fff; border: none; cursor: pointer; font-weight: bold; font-family: monospace; text-shadow: 0 0 5px #fff; border-radius: 2px; box-shadow: 0 0 10px rgba(212,33,164,0.5); transition: 0.2s;">ВОЙТИ</button>
-                </div>
+    <script>
+        // ВСТАВЬТЕ СЮДА СВОЮ ССЫЛКУ ИЗ ГУГЛ СКРИПТА МЕЖДУ КАВЫЧКАМИ:
+        const GOOGLE_SCRIPT_URL = 'СЮДА_ВСТАВИТЬ_ССЫЛКУ_ИЗ_ШАГА_2';
 
-            </div> <!-- КОНЕЦ ГЛАВНОЙ СТРАНИЦЫ -->
-                                                          <!-- Страница: Публичная Стена (ПОЛНОЭКРАННЫЙ РЕТРО-ДИЗАЙН) -->
-            <div id="page-wall" class="page" style="border: none; background: transparent; padding: 0; position: relative;">
+        // Отправка
+        async function sendMessage() {
+            const input = document.getElementById('messageInput');
+            const text = input.value.trim();
+            if (!text) return;
+
+            try {
+                // Гугл Скрипты капризные, поэтому отправляем запрос через text/plain, но внутри пишем JSON
+                await fetch(GOOGLE_SCRIPT_URL, {
+                    method: 'POST',
+                    mode: 'no-cors', // Важно для работы с Google Apps Script без ошибок CORS
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ message: text })
+                });
                 
-                <!-- Современная плашка заголовка блогов — ТЕПЕРЬ В ВИННОМ СТИЛЕ -->
-                <div style="background: #4b3145; padding: 15px; margin-bottom: 15px; border: 1px solid #c000ff; border-radius: 4px; font-weight: bold; font-size: 1.1em; box-shadow: 0 0 10px rgba(192, 0, 255, 0.2); color: #fff; font-family: monospace;">
-                    📟 ПУБЛИЧНАЯ СТЕНА ПОДПОЛЬЯ
-                </div>
-                
-                <!-- Полноэкранная лента постов с вашей потрясающей дримкор-поляной на фоне! -->
-                <div id="wallPosts" style="height: 730px; overflow-y: auto; background-image: url('https://google.com'); background-size: cover; background-position: center; backdrop-filter: blur(3px); -webkit-backdrop-filter: blur(3px); padding: 15px; border: 1px solid #c000ff; border-radius: 4px; box-shadow: inset 0 0 20px rgba(0,0,0,0.4);">
-                    Загрузка постов со Стены...
-                </div>
-                
-                <!-- КРУГЛАЯ ПАРЯЩАЯ КНОПКА ПЛЮСА — ПЕРЕКРАШЕНА В РОЗОВЫЙ НЕОН -->
-                <button onclick="toggleWallForm()" style="position: absolute; bottom: 20px; right: 20px; width: 60px; height: 60px; border-radius: 50%; background: #d421a4; color: #fff; border: none; font-size: 28px; font-weight: bold; cursor: pointer; box-shadow: 0 0 15px #d421a4; z-index: 999; display: flex; align-items: center; justify-content: center; transition: 0.2s;">+</button>
-                
-                <!-- Наше парящее модальное окно (второй слой) -->
-                <div id="wallFormBox" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.8); z-index: 9999; align-items: center; justify-content: center; backdrop-filter: blur(4px);">
-                    <div style="background: #342d32; border: 2px solid #d421a4; padding: 25px; border-radius: 8px; width: 450px; max-width: 90%; box-shadow: 0 0 25px #d421a4; position: relative;">
-                        <button onclick="toggleWallForm()" style="position: absolute; top: 10px; right: 10px; background: none; color: #d421a4; border: none; font-size: 1.2em; cursor: pointer; font-weight: bold;">[X]</button>
-                        <h3 style="color: #d421a4; margin-top: 0; margin-bottom: 15px; font-family: monospace; text-shadow: 0 0 5px rgba(212,33,164,0.3);">📟 Создать публикацию</h3>
-                        
-                        <input type="text" id="wallUser" placeholder="Ваше имя / Ник" style="width: 100%; box-sizing: border-box; padding:10px; display:block; margin-bottom:10px; background:#3f2254; color:#fff; border:1px solid #c000ff; font-family:monospace;">
-                        <input type="text" id="wallText" placeholder="Текст вашего поста..." style="width: 100%; box-sizing: border-box; padding:10px; display:block; margin-bottom:10px; background:#3f2254; color:#fff; border:1px solid #c000ff; font-family:monospace;">
-                        
-                        <!-- НАШ КОНТРАСТНЫЙ ХЕЛПЕР ДЛЯ ССЫЛОК -->
-                        <div style="font-family: monospace; font-size: 0.75em; color: #d421a4; margin-bottom: 4px; padding-left: 2px; text-shadow: 0 0 3px rgba(212,33,164,0.2);">
-                            ⚠️ Важно: Используйте ПРЯМУЮ ссылку на фото (нужно скопировать URL картинки в браузере, чтобы в конце было .jpg или .png) иначе фото не загрузится
-                        </div>
-                        <input type="text" id="wallImg" placeholder="Прямая ссылка на картинку (.jpg, .png)..." style="width: 100%; box-sizing: border-box; padding:10px; display:block; margin-bottom:15px; background:#3f2254; color:#fff; border:1px solid #c000ff; font-family:monospace;">
-                        
-                        <button onclick="sendWall()" style="width: 100%; padding:12px; font-weight:bold; cursor:pointer; background:#d421a4; color:#fff; border:none; border-radius: 4px; font-family:monospace; box-shadow: 0 0 10px rgba(212,33,164,0.4); text-shadow: 0 0 3px #fff;">ОПУБЛИКОВАТЬ НА СТЕНЕ</button>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Страница: Плеер (СОЧНЫЙ ДИЗАЙН, КОТОРЫЙ ИДЕАЛЬНО СКРЫВАЕТСЯ) -->
-            <div id="page-player" class="page" style="border: none; background: transparent; padding: 0;">
-                <!-- Обертка, которая задает общую высоту и направление, но скрывается вместе с плеером -->
-                <div style="display: flex; flex-direction: column; gap: 15px; height: 650px;">
-
-                    <!-- ВЕЧНЫЙ ПУЛЬТ УПРАВЛЕНИЯ АТМОСФЕРОЙ -->
-                    <div style="background: rgba(75, 49, 69, 0.6); backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px); padding: 20px; border: 1px solid #d421a4; border-radius: 4px; box-shadow: 0 0 15px rgba(212, 33, 164, 0.2); display: flex; align-items: center; justify-content: space-between; gap: 20px; flex-shrink: 0;">
-                        <div>
-                            <h3 style="color: #d421a4; margin: 0; font-family: monospace; font-size: 1.1em; text-shadow: 0 0 4px rgba(212,33,164,0.3);">📻 СИСТЕМНЫЙ ЭМБИЕНТ ЗАКУЛИСЬЯ</h3>
-                            <p style="margin: 5px 0 0 0; color: #aaa; font-size: 0.85em; font-family: monospace;">Фоновый гул пространств. Включи для полного погружения или выруби, если давит на мозг.</p>
-                        </div>
-                        <button id="ambientBtn" onclick="toggleAmbient()" style="padding: 12px 25px; background: #342d32; color: #c000ff; border: 1px dashed #c000ff; cursor: pointer; font-family: monospace; font-size: 0.9em; font-weight: bold; border-radius: 2px; white-space: nowrap; transition: 0.2s; box-shadow: 0 0 5px rgba(192,0,255,0.1);">Context: OFF</button>
-                        <audio id="backroomsAmbient" loop>
-                            <source src="https://docs.google.com/uc?export=download&id=1CzriZe0uSfu1LxEGZSnSjX1YjHtzs16R" type="audio/mp3">
-                        </audio>
-                    </div>
-                                        <!-- ПОДПОЛЬНАЯ ЛЕНТА С ТРЕКАМИ -->
-                    <div style="background: rgba(75, 49, 69, 0.5); backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px); padding: 20px; border: 1px solid #c000ff; border-radius: 4px; box-shadow: 0 0 10px rgba(192, 0, 255, 0.15); display: flex; flex-direction: column; gap: 15px; flex: 1; overflow-y: auto;">
-                        <div style="border-bottom: 1px dashed #c000ff; padding-bottom: 10px; margin-bottom: 5px;">
-                            <h4 style="color: #d421a4; margin: 0; font-family: monospace; font-size: 1em; text-shadow: 0 0 4px rgba(212,33,164,0.3);">🎵 ОБНОВЛЯЕМЫЙ ПЛЕЙЛИСТ ПОДПОЛЬЯ</h4>
-                            <p style="margin: 3px 0 0 0; color: #aaa; font-size: 0.8em; font-family: monospace;">Музыка эпохи 2000-х. Кликни, чтобы слушать в новой чистой вкладке без блокировок Google:</p>
-                        </div>
-
-                        <a href="https://yandex.ru" target="_blank" style="display: block; background: #342d32; color: #fff; padding: 15px; text-decoration: none; font-weight: bold; border: 1px dashed #c000ff; border-radius: 4px; font-family: monospace; font-size: 0.9em; transition: 0.2s;">
-                            🎸 Linkin Park — In The End (2001) <span style="float: right; color: #d421a4; text-shadow: 0 0 5px rgba(212,33,164,0.4);">[ОТКРЫТЬ] 🚀</span>
-                        </a>
-
-                        <a href="https://yandex.ru" target="_blank" style="display: block; background: #342d32; color: #fff; padding: 15px; text-decoration: none; font-weight: bold; border: 1px dashed #c000ff; border-radius: 4px; font-family: monospace; font-size: 0.9em; transition: 0.2s;">
-                            🔥 The Black Eyed Peas — Pump It (2005) <span style="float: right; color: #d421a4; text-shadow: 0 0 5px rgba(212,33,164,0.4);">[ОТКРЫТЬ] 🚀</span>
-                        </a>
-
-                        <a href="https://yandex.ru" target="_blank" style="display: block; background: #342d32; color: #fff; padding: 15px; text-decoration: none; font-weight: bold; border: 1px dashed #c000ff; border-radius: 4px; font-family: monospace; font-size: 0.9em; transition: 0.2s;">
-                            ⚡ Benny Benassi — Satisfaction (2003) <span style="float: right; color: #d421a4; text-shadow: 0 0 5px rgba(212,33,164,0.4);">[ОТКРЫТЬ] 🚀</span>
-                        </a>
-                    </div>
-
-                </div>
-
-            </div> <!-- КОНЕЦ СТРАНИЦЫ ПЛЕЕРА -->
-                        
-            <!-- Страница: Лаборатория Мемов и Аномалий (КОМПОЗИЦИОННОЕ РАВНОВЕСИЕ) -->
-            <div id="page-memes" class="page" style="border: none; background: transparent; padding: 0; flex-direction: column; gap: 20px; min-height: 1000px; padding-bottom: 50px;">
-                
-                <!-- ТРЕХКОЛОНОЧНЫЙ ХАБ: ВСЕ БЛОКИ НА ОДНОЙ ЛИНИИ -->
-                <div style="display: grid; grid-template-columns: 180px 450px 1fr; gap: 15px; flex-shrink: 0; align-items: stretch;">
-                    
-                    <!-- КОЛОНКА 1: УПРАВЛЕНИЕ ХОЛСТОМ (ВЕРТИКАЛЬНАЯ КОНСОЛЬ) -->
-                    <div style="background: rgba(75, 49, 69, 0.7); backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px); padding: 15px; border: 1px solid #c000ff; border-radius: 4px; display: flex; flex-direction: column; justify-content: center; gap: 12px; box-shadow: 0 0 10px rgba(192, 0, 255, 0.15);">
-                        <h3 style="color: #c000ff; margin: 0; font-family: monospace; font-size: 1em; text-align: center; text-shadow: 0 0 4px rgba(192,0,255,0.3);">🎨 PAINT</h3>
-                        <p style="margin: 0; color: #aaa; font-size: 0.75em; font-family: monospace; text-align: center; line-height: 1.3;">Нарисуй абстракцию и отправь в подпольную ленту.</p>
-                        <button onclick="clearCanvas()" style="width: 100%; padding: 10px; background: #342d32; color: #fff; border: 1px solid #c000ff; cursor: pointer; font-family: monospace; font-size: 0.85em; font-weight: bold; border-radius: 2px;">Очистить</button>
-                        <button onclick="uploadDrawing()" style="width: 100%; padding: 10px; background: #d421a4; color: #fff; border: none; cursor: pointer; font-family: monospace; font-weight: bold; font-size: 0.85em; border-radius: 2px; box-shadow: 0 0 10px rgba(212,33,164,0.4); text-shadow: 0 0 3px #fff;">🚀 На Стену</button>
-                    </div>
-
-                    <!-- КОЛОНКА 2: ИДЕАЛЬНЫЙ ЦЕНТРАЛЬНЫЙ ХОЛСТ (БЕЗ ОТСТУПОВ) -->
-                    <div style="background: #111; border: 1px solid #c000ff; border-radius: 4px; overflow: hidden; height: 250px; box-sizing: border-box; box-shadow: 0 0 10px rgba(192, 0, 255, 0.1);">
-                        <canvas id="paintCanvas" width="450" height="250" style="background: #111; cursor: crosshair; display: block;"></canvas>
-                    </div>
-
-                    <!-- КОЛОНКА 3: СЖАТАЯ И СТИЛЬНАЯ ГАДАЛКА -->
-                    <div style="background: rgba(75, 49, 69, 0.5); padding: 15px; border: 1px solid #d421a4; border-radius: 4px; display: flex; flex-direction: column; justify-content: space-between; box-shadow: 0 0 10px rgba(212,33,164,0.15); height: 250px; box-sizing: border-box;">
-                        <div style="text-align: center;">
-                            <h3 style="color: #d421a4; margin: 0; font-family: monospace; font-size: 1em; text-shadow: 0 0 4px rgba(212,33,164,0.3);">🔮 ГАДАЛКА</h3>
-                            <p style="margin: 3px 0 0 0; color: #aaa; font-size: 0.75em; font-family: monospace;">Мысли из Закулисья</p>
-                        </div>
-                        
-                        <!-- Окно ответа гадалки -->
-                        <div id="fortuneText" style="background: #342d32; border: 1px solid #d421a4; padding: 10px; border-radius: 4px; color: #ddd; font-family: monospace; font-size: 0.85em; font-style: italic; flex: 1; margin: 10px 0; display: flex; align-items: center; justify-content: center; text-align: center; line-height: 1.4; box-shadow: inset 0 0 5px rgba(0,0,0,0.3);">
-                            «Извлеки аномалию...»
-                        </div>
-                        
-                        <button onclick="getFortune()" style="width: 100%; padding: 10px; background: #d421a4; color: #fff; border: none; font-weight: bold; font-family: monospace; cursor: pointer; box-shadow: 0 0 10px rgba(212,33,164,0.4); border-radius: 2px; font-size: 0.85em; text-shadow: 0 0 3px #fff;">УЗНАТЬ СУДЬБУ</button>
-                    </div>
-
-                </div>
-
-                <!-- ЯРУС 2: ПОЛНОЭКРАННАЯ ЛЕНТА АРХИВА МЕМАМИ -->
-                <div style="flex: 1; overflow-y: auto; background: rgba(75, 49, 69, 0.3); backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px); padding: 20px; border: 1px dashed #c000ff; border-radius: 4px; box-shadow: 0 4px 15px rgba(0,0,0,0.2);">
-                    <h4 style="color: #c000ff; margin: 0 0 15px 0; font-family: monospace; border-bottom: 1px dashed #c000ff; padding-bottom: 5px; text-shadow: 0 0 3px rgba(192,0,255,0.2);">📌 ТОП ЛОКАЛЬНЫХ АНОМАЛИЙ (АРХИВ МЕМАМИ)</h4>
-                    
-                    <!-- Ваша огромная Pinterest-сетка, очищенная от лишней стрелочки -->
-                    <div id="memeGridContainer" style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
-                        Загрузка картинок из облака подполья...
-                    </div>
-                </div>
-
-            </div> <!-- КОНЕЦ СТРАНИЦЫ МЕМОВ -->
-            
-            <!-- Страница: Секретный Чат -->
-            <div id="page-chat" class="page" style="border: none; background: transparent; padding: 0; flex-direction: column; flex: 1;">
-                
-                <!-- Заголовок Приватной комнаты перекрашен в винный стиль -->
-                <div style="background: #4b3145; padding: 15px; margin-bottom: 15px; border: 1px solid #c000ff; border-radius: 4px; font-weight: bold; font-size: 1.1em; box-shadow: 0 0 10px rgba(192, 0, 255, 0.2); color: #fff; font-family: monospace;">
-                    🔒 Приватная комната: <span id="chatRoomName" style="color:#d421a4; text-shadow: 0 0 4px #d421a4;"></span>
-                </div>
-                
-                <!-- Окно сообщений чата избавилось от старого синего фона -->
-                <div id="chatMessages" style="flex: 1; min-height: 350px; overflow-y: auto; background: #342d32; padding: 15px; margin-bottom: 15px; border: 1px solid #c000ff; border-radius: 4px; box-shadow: inset 0 0 15px rgba(0,0,0,0.4);"></div>
-                
-                <!-- Поля ввода и кнопка перекрашены в единую хакерскую палитру -->
-                <input type="text" id="chatUser" placeholder="Ваш ник" style="width: 100%; box-sizing: border-box; padding:10px; display:block; margin-bottom:6px; background:#342d32; color:#fff; border:1px solid #c000ff; font-family:monospace; border-radius: 4px;">
-                <input type="text" id="chatText" placeholder="Сообщение..." style="width: 100%; box-sizing: border-box; padding:10px; display:block; margin-bottom:12px; background:#342d32; color:#fff; border:1px solid #c000ff; font-family:monospace; border-radius: 4px;">
-                <button onclick="sendChat()" style="width: 100%; padding:14px 20px; font-weight:bold; cursor:pointer; background:#d421a4; color:#fff; border:none; border-radius: 4px; font-family:monospace; box-shadow: 0 0 12px rgba(212,33,164,0.4); text-shadow: 0 0 3px #fff; font-size: 0.95em; transition: 0.2s;">Послать в чат</button>
-            </div> <!-- КОНЕЦ СТРАНИЦЫ ЧАТА -->
-
-        </div> <!-- Закрывает content-area -->
-    </div> <!-- Закрывает main-layout -->
-</div> <!-- Закрывает site-wrapper -->
-<script>
-  const API_URL = "https://script.google.com/macros/s/AKfycbwRrKt2MhGuSH3mjLHXf2LXFoieUyQdylNCXfywOumTkyILg0i3-4EzrEQStBFizNEp/exec";
-  var currentRoomId = null;
-    var chatInterval = null;
-       var authorizedRooms = []
-    var allowedRooms = ["Группа_1", "Группа_2", "VIP_зона", "админка"]; 
-    function switchPage(pageId) {
-        var pages = document.querySelectorAll('.page');
-        pages.forEach(function(p) { p.classList.remove('active'); });
-        var targetPage = document.getElementById('page-' + pageId);
-        if (targetPage) { targetPage.classList.add('active'); }
-            // Если переключились на мемы — включаем рисовалку
-            if (pageId === 'memes') { 
-        initCanvas(); 
-        loadMemeGrid(); // НАША НОВАЯ КОМАНДА: загружать мемы при входе на вкладку!
-        if (pageId === 'home') { loadHomeWallPreview(); }
-    }
-
-    }
-    
-     window.onload = function() {
-        var urlParams = new URLSearchParams(window.location.search);
-        var room = urlParams.get('room');
-        if (room) { openSecretChat(room); }
-        
-        // НАШИ НОВЫЕ СТАРТОВЫЕ КОМАНДЫ ДЛЯ ГЛАВНОЙ:
-        updateTerminalTime();
-        setInterval(updateTerminalTime, 1000); // Запуск тиканья часов
-        loadHomeWallPreview(); // Загрузка экспресс-постов
-    };
-    
-    function enterViaCode() {
-        var code = document.getElementById('secretCodeInput').value.trim();
-        if (!code) { alert("Введите имя комнаты!"); return; }
-        if (code === "Группа_1" || code === "Группа_2" || code === "VIP_зона" || code === "админка") {
-            openSecretChat(code);
-        } else { alert("❌ Неверный код!"); }
-    }
-    
-    // Переменная-память, которая будет хранить только открытые вами комнаты.
-// Поместите эту строчку прямо НАД функцией openSecretChat, если её там нет.
-var authorizedRooms = []; 
-
-function openSecretChat(roomName) {
-    currentRoomId = roomName;
-    
-    var roomNameElem = document.getElementById('chatRoomName');
-    if (roomNameElem) { roomNameElem.innerText = roomName; }
-    
-    var chatBtn = document.getElementById('navChatBtn');
-    if (chatBtn) { chatBtn.style.display = 'block'; }
-    
-    // ПАМЯТЬ СЕССИИ: Добавляем комнату в список открытых, если её там нет
-    if (typeof authorizedRooms === 'undefined') { authorizedRooms = []; }
-    if (authorizedRooms.indexOf(roomName) === -1) {
-        authorizedRooms.push(roomName);
-    }
-    
-    // СТРОИМ МЕНЮ: Собираем кнопки СТРОГО для открытых по паролю комнат
-    var menuHtml = '';
-    authorizedRooms.forEach(function(room) {
-        var isCurrent = (room === roomName);
-        var activeStyle = isCurrent ? 'background:#ff007f; box-shadow: 0 0 10px #ff007f;' : 'background:#111;';
-        var indicator = isCurrent ? '🟢 ' : '⚫ ';
-        
-        menuHtml += '<button style="width:100%; border:1px solid #ff007f; color:white; padding:8px; font-size:0.9em; cursor:pointer; text-align:left; margin-bottom:5px; ' + activeStyle + '" onclick="openSecretChat(\'' + room + '\')">' + indicator + room + '</button>';
-    });
-    
-    var subMenu = document.getElementById('roomsSubMenu');
-    if (subMenu) {
-        subMenu.innerHTML = menuHtml;
-        subMenu.style.display = 'flex';
-    }
-    
-    switchPage('chat');
-    loadChat();
-    
-    if (chatInterval) { clearInterval(chatInterval); }
-    chatInterval = setInterval(loadChat, 3000);
-}
-      
-    function loadChat() {
-    if (!currentRoomId || typeof google === 'undefined') return;
-    
-    google.script.run.withSuccessHandler(function(messages) {
-        var box = document.getElementById('chatMessages');
-        if (!box) return;
-
-        if (!messages || messages.length === 0) {
-            box.innerHTML = '<div style="color:gray; padding:10px;">В этой комнате пока нет сообщений. Напишите что-нибудь первым!</div>';
-            return;
-        }
-        
-        var html = '';
-        for (var i = 0; i < messages.length; i++) {
-            var row = messages[i];
-            if (!row) continue;
-            html += '<div class="message"><span class="meta">['+row[0]+']</span> <b>'+row[2]+'</b>: '+row[3]+'</div>';
-        }
-        box.innerHTML = html;
-        
-        // АВТОПРОКРУТКА: Скроллим диалоговое окно к самым свежим сообщениям
-        box.scrollTop = box.scrollHeight;
-    }).getChatMessages(currentRoomId);
-}
-    
-    function sendChat() {
-        var u = document.getElementById('chatUser').value;
-        var t = document.getElementById('chatText').value;
-        if(!u || !t) return;
-        google.script.run.withSuccessHandler(function() {
-            document.getElementById('chatText').value = '';
-            loadChat();
-        }).addChatMessage(currentRoomId, u, t);
-    }
-       // Загрузка постов на Стену
-    function loadWall() {
-    // Стучимся к шлюзу и просим выдать нам Стену
-    fetch(API_URL + "?action=getWall")
-        .then(response => response.json())
-        .then(posts => {
-            var container = document.getElementById('wallPosts');
-            if (!container) return;
-            
-            if (!posts || posts.length === 0) {
-                container.innerHTML = '<div style="color:gray; padding:10px;">На стене пока пусто...</div>';
-                return;
+                input.value = '';
+                // Так как режим 'no-cors' не дает прочитать ответ, просто ждем секунду и обновляем чат
+                setTimeout(loadMessages, 1500);
+            } catch (error) {
+                console.error("Ошибка:", error);
             }
-            
-            var html = '';
-            for (var i = posts.length - 1; i >= 0; i--) {
-                var row = posts[i];
-                if (!row || row.length < 3) continue;
+        }
+
+        // Загрузка
+        async function loadMessages() {
+            try {
+                const response = await fetch(GOOGLE_SCRIPT_URL);
+                const data = await response.json();
                 
-                var d = row[0] ? String(row[0]) : '00.00 00:00';
-                var user = row[1] || 'Аноним';
-                var text = row[2] || '';
+                const chatBox = document.getElementById('chatBox');
+                chatBox.innerHTML = '';
                 
-                html += '<div class="message">';
-                html += '  <div class="meta">[' + d + '] <b>' + user + '</b>:</div>';
-                
-                if (text.indexOf("[IMG]") !== -1) {
-                    var parts = text.split("[IMG]");
-                    var txtPart = parts[0];
-                    var imgUrl = parts[1];
-                    html += '  <div style="margin-top:5px;">' + txtPart + '</div>';
-                    html += '  <img src="' + imgUrl + '" style="max-width:100%; max-height:300px; display:block; margin-top:10px; border-radius:4px; border:1px solid rgba(255,255,255,0.1);">';
+                if(data.messages && data.messages.length > 0) {
+                    data.messages.forEach(msg => {
+                        const div = document.createElement('div');
+                        div.style.marginBottom = '5px';
+                        div.innerText = '• ' + msg;
+                        chatBox.appendChild(div);
+                    });
                 } else {
-                    html += '  <div style="margin-top:5px;">' + text + '</div>';
+                    chatBox.innerText = 'В таблице пока пусто...';
                 }
-                html += '</div>';
+                chatBox.scrollTop = chatBox.scrollHeight;
+            } catch (error) {
+                console.error("Не удалось загрузить:", error);
             }
-            container.innerHTML = html;
-        }).catch(err => console.error("Ошибка загрузки стены:", err));
-}
-
-    function toggleWallForm() {
-    var box = document.getElementById('wallFormBox');
-    if (box) {
-        box.style.display = (box.style.display === 'none') ? 'flex' : 'none';
-    }
-}
-// Отправка поста на Стену
-    function sendWall() {
-    var user = document.getElementById('wallUser').value.trim();
-    var text = document.getElementById('wallText').value.trim();
-    var img  = document.getElementById('wallImg').value.trim();
-    
-    if (!user || (!text && !img)) { alert("Заполните ник и текст/картинку!"); return; }
-    
-    // Формируем посылку для шлюза таблицы
-    var payload = {
-        action: "sendWall",
-        user: user,
-        text: text,
-        img: img
-    };
-    
-    fetch(API_URL, {
-        method: "POST",
-        mode: "no-cors", // Позволяет отправлять данные в Google без заморочек с политикой безопасности
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload)
-    }).then(() => {
-        // Очищаем инпуты и закрываем модалку
-        document.getElementById('wallText').value = '';
-        document.getElementById('wallImg').value = '';
-        toggleWallForm();
-        // Даем серверу Google полсекунды дописать строчку в таблицу и обновляем Стену
-        setTimeout(loadWall, 600);
-    }).catch(err => alert("Ошибка отправки публикации: " + err));
-}
-    // Логика фоновой музыки Закулисья в плеере
-                function toggleAmbient() {
-        var audio = document.getElementById('backroomsAmbient');
-        var btn = document.getElementById('ambientBtn');
-        if (!audio || !btn) return;
-        
-        // ЭТАП 1: Если ссылка еще не загружена из таблицы — загружаем её
-        if (!audio.src && typeof google !== 'undefined') {
-            btn.disabled = true;
-            btn.innerText = "LOADING...";
-            
-            google.script.run.withSuccessHandler(function(tracks) {
-                var musicUrl = "";
-                for (var i = 0; i < tracks.length; i++) {
-                    if (tracks[i][1] === "СИСТЕМНЫЙ ЭМБИЕНТ") {
-                        var rawUrl = tracks[i][0];
-                        var parts = rawUrl.split('/d/');
-                        if (parts.length > 1) {
-                            var idParts = parts[1].split('/');
-                            var id = idParts[0]; // Чистый ID файла Диска
-                            
-                            // Собираем прямую ссылку из чистых кубиков
-                            var p1 = "https://docs.google.";
-                            var p2 = "com/uc?export=download";
-                            var p3 = "&id=";
-                            musicUrl = p1 + p2 + p3 + id;
-                        }
-                    }
-                }
-                
-                btn.disabled = false;
-                if (musicUrl) {
-                    audio.src = musicUrl;
-                    audio.volume = 0.15; // Спокойная тихая громкость (15%)
-                    btn.innerText = "🔇 SOUND: READY"; // Плеер заряжен!
-                    btn.style.color = "#ff007f";
-                    btn.style.borderColor = "#ff007f";
-                } else {
-                    btn.innerText = "Context: ERR";
-                    alert("В таблице на листе 'Музыка' не найдена строчка 'СИСТЕМНЫЙ ЭМБИЕНТ'!");
-                }
-            }).getMusicDatabase();
-            return;
         }
-        
-                // ЭТАП 2: Если плеер уже заряжен ссылкой — включаем и выключаем трек
-        if (audio.paused) {
-            audio.play(); // Запускаем напрямую!
-            btn.innerText = "🔊 Context: ON";
-            btn.style.background = "rgba(255, 0, 127, 0.1)";
-        } else {
-            audio.pause();
-            btn.innerText = "🔇 SOUND: READY";
-            btn.style.background = "#161624";
-        }
-    }
-        // СКРИПТ РИСОБАЛКИ И ГАДАЛКИ
-    var canvas, ctx, isDrawing = false;
 
-    function initCanvas() {
-        canvas = document.getElementById('paintCanvas');
-        if (!canvas) return;
-        ctx = canvas.getContext('2d');
-        ctx.strokeStyle = '#ff007f'; // Цвет кисти — неоновый розовый
-        ctx.lineWidth = 3;           // Толщина кисти
-        ctx.lineCap = 'round';
-        
-        // Датчики мышки
-        canvas.onmousedown = function(e) { isDrawing = true; ctx.beginPath(); ctx.moveTo(e.offsetX, e.offsetY); };
-        canvas.onmousemove = function(e) { if (isDrawing) { ctx.lineTo(e.offsetX, e.offsetY); ctx.stroke(); } };
-        canvas.onmouseup = function() { isDrawing = false; };
-        canvas.onmouseleave = function() { isDrawing = false; };
-    }
-
-    function clearCanvas() {
-        if (ctx && canvas) ctx.clearRect(0, 0, canvas.width, canvas.height);
-    }
-
-    // ОТПРАВКА КУСОЧКА ХОЛСТА НА СТЕНУ!
-    function uploadDrawing() {
-        if (!canvas || typeof google === 'undefined') return;
-        // Превращаем рисунок в текстовую ссылку Base64
-        var dataUrl = canvas.toDataURL('image/png'); 
-        
-        // Отправляем на сервер как пост на Стену от имени Художника-Анонима
-        google.script.run.withSuccessHandler(function() {
-            clearCanvas();
-            alert("🎨 Рисунок успешно телепортирован на Публичную Стену!");
-        }).addWallPost("Художник_В Закулисье", "[Рисунок подполья]" + "[IMG]" + dataUrl);
-    }
-
-    // ЛОГИКА ГАДАЛКИ
-    function getFortune() {
-        var predictions = [
-            "Вы находитесь на уровне 0. Выхода нет, но чат работает стабильно.",
-            "Наблюдатель сегодня добрый. Ваша аномалия в пределах нормы.",
-            "Осторожно: холмы за окном начинают двигаться. Не смотрите на них слишком долго.",
-            "День 413. Взрослая жизнь — это симуляция. Перезапустите развертывание.",
-            "Скрипт проверен. Ошибок нет. Но за вами кто-то наблюдает сквозь пиксели.",
-            "Вы найдете чистую MP3 ссылку там, где её никто не искал.",
-            "Поздравляем! Ваш друг (0.5 человека) только что подумал о вас.",
-            "Группа_1 следит за Группой_2. Будьте осторожны в приватных комнатах."
-        ];
-        // Выбираем случайную фразу
-        var randomPhrase = predictions[Math.floor(Math.random() * predictions.length)];
-        var elem = document.getElementById('fortuneText');
-        if (elem) elem.innerText = "🔮 Предсказание: " + randomPhrase;
-    }
-    function getMemeDatabase() {
-  try {
-    var sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName("Мемы");
-    if (!sheet) return [];
-    
-    var data = sheet.getDataRange().getValues();
-    if (data.length <= 1) return []; // Если только шапка — выходим
-    
-    var filtered = [];
-    // Пропускаем шапку (i=1)
-    for (var i = 1; i < data.length; i++) {
-      var row = data[i];
-      if (!row || !row[0]) continue; // Если ссылки нет — пропускаем
-      
-      filtered.push([
-        String(row[0]), // 0: URL картинки
-        String(row[1] || 'Без описания'), // 1: Подпись
-        Number(row[2] || 0), // 2: Кол-во лайков
-        i + 1 // 3: Номер строки в таблице (пригодится для лайков!)
-      ]);
-    }
-    return filtered;
-  } catch(e) {
-    return [];
-  }
-}
-    // Автоматическая выгрузка мемов из таблицы
-              function loadMemeGrid() {
-    fetch(API_URL + "?action=getMemes")
-        .then(response => response.json())
-        .then(memes => {
-            var container = document.getElementById('memeGridContainer');
-            if (!container) return;
-            
-            if (!memes || memes.length === 0) {
-                container.innerHTML = '<div style="color:gray; padding:10px; font-family:monospace;">Облачный архив пуст.</div>';
-                return;
-            }
-            
-            var html = '';
-            for (var i = 0; i < memes.length; i++) {
-                // Гитхаб читает массив по точным отсекам без цензуры
-                var imgUrl   = memes[i][0]; // Колонка A (Ссылка)
-                var desc     = memes[i][1]; // Колонка B (Описание)
-                var likes    = memes[i][2]; // Колонка C (Лайки)
-                var rowNum   = memes[i][3]; // Номер строки для лайка
-                var dateText = memes[i][4]; // Красивая дата
-                
-                var hasLiked = localStorage.getItem('meme_liked_' + rowNum) === 'true';
-                var btnStyle = hasLiked ? 'background:#d421a4; color:#fff; box-shadow: 0 0 10px #d421a4; cursor:default;' : 'background:#342d32; color:#c000ff; cursor:pointer;';
-                var btnDisabled = hasLiked ? 'disabled' : '';
-
-                html += '<div style="background: rgba(75, 49, 69, 0.5); backdrop-filter: blur(2px); border: 1px dashed rgba(192, 0, 255, 0.4); padding: 10px; border-radius: 6px; display: flex; flex-direction: column; gap: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.3); height: fit-content;">';
-                html += '  <div style="font-family:monospace; font-size:0.72em; color:#aaa; text-align:left; padding-left: 2px;">[' + dateText + ']</div>';
-                
-                // КРАСОТА: Если файл лежит на Гитхабе, пишем просто имя (например, bliss.png)
-                html += '  <img src="' + imgUrl + '" style="width:100%; height: auto; display: block; border-radius: 4px;">';
-                
-                html += '  <div style="background: #342d32; padding: 10px; border-radius: 4px; border: 1px solid rgba(192, 0, 255, 0.2); display: flex; flex-direction: column; gap: 8px; margin-top: 2px;">';
-                html += '    <div style="font-family:monospace; font-size:0.85em; color:#ddd; text-align: left; line-height: 1.4; word-break: break-word;">' + desc + '</div>';
-                html += '    <button id="likeBtn_' + rowNum + '" onclick="sendLike(' + rowNum + ')" ' + btnDisabled + ' style="width:100%; padding:8px; border:1px solid #c000ff; font-family:monospace; font-size:0.8em; font-weight:bold; border-radius:4px; transition: 0.2s; ' + btnStyle + '">❤️ Лайк: <span id="likeCount_' + rowNum + '">' + likes + '</span></button>';
-                html += '  </div>';
-                html += '</div>';
-            }
-            container.innerHTML = html;
-        }).catch(err => console.error("Ошибка загрузки мемов:", err));
-}
-
-function sendLike(rowNumber) {
-    if (localStorage.getItem('meme_liked_' + rowNumber) === 'true') return;
-    
-    var btn = document.getElementById('likeBtn_' + rowNumber);
-    var countSpan = document.getElementById('likeCount_' + rowNumber);
-    if (!btn || !countSpan) return;
-    
-    btn.disabled = true;
-    btn.style.opacity = "0.6";
-    
-    var payload = {
-        action: "likeMeme",
-        row: rowNumber
-    };
-    
-    fetch(API_URL, {
-        method: "POST",
-        mode: "no-cors",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload)
-    }).then(() => {
-        var current = parseInt(countSpan.innerText) || 0;
-        countSpan.innerText = current + 1;
-        
-        btn.style.background = "#d421a4";
-        btn.style.color = "#fff";
-        btn.style.boxShadow = "0 0 10px #d421a4";
-        btn.style.opacity = "1";
-        btn.style.cursor = "default";
-        
-        localStorage.setItem('meme_liked_' + rowNumber, 'true');
-    }).catch(err => { btn.disabled = false; btn.style.opacity = "1"; });
-}
-
-    function sendLike(rowNumber) {
-        if (typeof google === 'undefined') return;
-        
-        // Если уже лайкнули — блокируем повторный клик на клиенте
-        if (localStorage.getItem('meme_liked_' + rowNumber) === 'true') return;
-        
-        var btn = document.getElementById('likeBtn_' + rowNumber);
-        var countSpan = document.getElementById('likeCount_' + rowNumber);
-        if (!btn || !countSpan) return;
-        
-        // Временная блокировка на момент отправки запроса
-        btn.disabled = true;
-        btn.style.opacity = "0.6";
-        
-        google.script.run.withSuccessHandler(function(success) {
-            if (success) {
-                // 1. Прибавляем счётчик вживую на экране
-                var current = parseInt(countSpan.innerText) || 0;
-                countSpan.innerText = current + 1;
-                
-                // 2. Красим плашку в вечный сочный розовый неон
-                btn.style.background = "#ff007f";
-                btn.style.color = "#fff";
-                btn.style.boxShadow = "0 0 10px #ff007f";
-                btn.style.opacity = "1";
-                btn.style.cursor = "default";
-                
-                // 3. ЗАПОМИНАЕМ В БРАУЗЕРЕ: этот мем лайкнут!
-                localStorage.setItem('meme_liked_' + rowNumber, 'true');
-            } else {
-                btn.disabled = false;
-                btn.style.opacity = "1";
-            }
-        }).addMemeLike(rowNumber);
-    }
-        // Логика тиканья часов в терминале
-    function updateTerminalTime() {
-        var clock = document.getElementById('terminalTime');
-        if (clock) { clock.innerText = new Date().toLocaleTimeString('ru-RU'); }
-    }
-
-    // Логика вывода 3-х последних постов на Главную
-    function loadHomeWallPreview() {
-    fetch(API_URL + "?action=getWall")
-        .then(response => response.json())
-        .then(posts => {
-            var container = document.getElementById('homeWallPreview');
-            if (!container) return;
-            
-            if (!posts || posts.length === 0) {
-                container.innerHTML = '<div style="color:gray;">На Публичной Стене пока нет записей...</div>';
-                return;
-            }
-            
-            var html = '';
-            var count = 0;
-            for (var i = posts.length - 1; i >= 0; i--) {
-                if (count >= 3) break;
-                var row = posts[i];
-                if (!row || row.length < 3) continue;
-                
-                var d = row[0] ? String(row[0]) : '00.00 00:00';
-                var user = row[1] || 'Аноним';
-                var text = row[2] || '';
-                
-                if (text.indexOf("[IMG]") !== -1) {
-                    text = text.split("[IMG]")[0] + " <span style='color:#d421a4;'>[📸 Изображение]</span>";
-                }
-                
-                html += '<div style="border-left: 2px solid #c000ff; padding-left: 10px; margin-bottom: 8px; font-size: 0.95em; text-align: left;">';
-                html += '  <span style="color:#aaa; font-size:0.85em;">['+d+']</span> <b style="color:#d421a4;">'+user+'</b>: ' + text;
-                html += '</div>';
-                count++;
-            }
-            container.innerHTML = html;
-        }).catch(err => console.error("Ошибка превью стены:", err));
-     }
-</script>
+        // Обновляем раз в 5 секунд, чтобы не спамить Гугл слишком часто
+        setInterval(loadMessages, 5000);
+        loadMessages();
+    </script>
 </body>
 </html>
-
