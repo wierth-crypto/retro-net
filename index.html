@@ -579,11 +579,11 @@
         async function loadChat() {
         if (!currentRoomId) return;
         
-        try {
-            // Переводим на POST, чтобы русские буквы комнаты не ломали Гугл
+        t        try {
             var response = await fetch(GOOGLE_SCRIPT_URL, {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
+                // Меняем application/json на text/plain, чтобы браузер пропустил запрос без досмотра!
+                headers: { 'Content-Type': 'text/plain' }, 
                 body: JSON.stringify({
                     action: 'getChatMessages',
                     room: currentRoomId
