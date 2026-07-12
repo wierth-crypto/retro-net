@@ -579,7 +579,7 @@
         async function loadChat() {
         if (!currentRoomId) return;
         
-        t        try {
+            try {
             var response = await fetch(GOOGLE_SCRIPT_URL, {
                 method: 'POST',
                 // Меняем application/json на text/plain, чтобы браузер пропустил запрос без досмотра!
