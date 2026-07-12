@@ -531,7 +531,41 @@
             openSecretChat(code);
         } else { alert("❌ Неверный код!"); }
     }
-
+    function openSecretChat(roomName) {
+        currentRoomId = roomName;
+        
+        var roomNameElem = document.getElementById('chatRoomName');
+        if (roomNameElem) { roomNameElem.innerText = roomName; }
+        
+        var chatBtn = document.getElementById('navChatBtn');
+        if (chatBtn) { chatBtn.style.display = 'block'; }
+        
+        if (typeof authorizedRooms === 'undefined') { authorizedRooms = []; }
+        if (authorizedRooms.indexOf(roomName) === -1) {
+            authorizedRooms.push(roomName);
+        }
+        
+        var menuHtml = '';
+        authorizedRooms.forEach(function(room) {
+            var isCurrent = (room === roomName);
+            var activeStyle = isCurrent ? 'background:#ff007f; box-shadow: 0 0 10px #ff007f;' : 'background:#111;';
+            var indicator = isCurrent ? '🟢 ' : '⚫ ';
+            
+            menuHtml += '<button style="width:100%; border:1px solid #ff007f; color:white; padding:8px; font-size:0.9em; cursor:pointer; text-align:left; margin-bottom:5px; ' + activeStyle + '" onclick="openSecretChat(\'' + room + '\')">' + indicator + room + '</button>';
+        });
+        
+        var subMenu = document.getElementById('roomsSubMenu');
+        if (subMenu) {
+            subMenu.innerHTML = menuHtml;
+            subMenu.style.display = 'flex';
+        }
+        
+        switchPage('chat');
+        loadChat();
+        
+        if (chatInterval) { clearInterval(chatInterval); }
+        chatInterval = setInterval(loadChat, 3000);
+    }
     // Логика тиканья часов в терминале
     function updateTerminalTime() {
         var clock = document.getElementById('terminalTime');
