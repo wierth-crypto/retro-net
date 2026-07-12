@@ -226,6 +226,15 @@
     var authorizedRooms = [];
     var allowedRooms = ["Группа_1", "Группа_2", "VIP_зона", "админка"]; 
 
+    window.onload = function() {
+        var urlParams = new URLSearchParams(window.location.search);
+        var room = urlParams.get('room');
+        if (room) { openSecretChat(room); }
+        
+        updateTerminalTime();
+        setInterval(updateTerminalTime, 1000); // Запуск тиканья часов
+        loadHomeWallPreview(); // Загрузка экспресс-постов на главную
+    };
     function switchPage(pageId) {
         var pages = document.querySelectorAll('.page');
         pages.forEach(function(p) { p.classList.remove('active'); });
@@ -531,6 +540,7 @@
             openSecretChat(code);
         } else { alert("❌ Неверный код!"); }
     }
+    
     function openSecretChat(roomName) {
         currentRoomId = roomName;
         
