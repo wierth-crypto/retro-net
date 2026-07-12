@@ -600,6 +600,40 @@
             console.error("Ошибка обновления чата:", error);
         }
     }
+        async function loadChat() {
+        if (!currentRoomId) return;
+        
+        try {
+            var response = await fetch(GOOGLE_SCRIPT_URL + '?action=getChatMessages&room=' + encodeURIComponent(currentRoomId));
+            var textData = await response.text();
+            
+            var jsonStart = textData.indexOf('{');
+            var jsonEnd = textData.lastIndexOf('}') + 1;
+            if (jsonStart === -1 || jsonEnd === 0) return;
+            var data = JSON.parse(textData.slice(jsonStart, jsonEnd));
+            
+            var box = document.getElementById('chatMessages');
+            if (!box) return;
+
+            if (!data.messages || data.messages.length === 0) {
+                box.innerHTML = '<div style="color:gray; padding:10px;">В этой комнате пока нет сообщений. Напишите что-нибудь первым!</div>';
+                return;
+            }
+            
+            var html = '';
+            for (var i = 0; i < data.messages.length; i++) {
+                var row = data.messages[i];
+                if (!row || row.length < 4) continue;
+                // Структура строки: [0] Время, [1] Комната, [2] Никнейм, [3] Текст сообщения
+                html += '<div class="message"><span class="meta">['+row[0]+']</span> <b>'+row[2]+'</b>: '+row[3]+'</div>';
+            }
+            box.innerHTML = html;
+            box.scrollTop = box.scrollHeight;
+            
+        } catch (error) {
+            console.error("Ошибка обновления чата:", error);
+        }
+    }
     // Логика тиканья часов в терминале
     function updateTerminalTime() {
         var clock = document.getElementById('terminalTime');
