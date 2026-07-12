@@ -580,7 +580,15 @@
         if (!currentRoomId) return;
         
         try {
-            var response = await fetch(GOOGLE_SCRIPT_URL + '?action=getChatMessages&room=' + encodeURIComponent(currentRoomId));
+            // Переводим на POST, чтобы русские буквы комнаты не ломали Гугл
+            var response = await fetch(GOOGLE_SCRIPT_URL, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    action: 'getChatMessages',
+                    room: currentRoomId
+                })
+            });
             var textData = await response.text();
             
             var jsonStart = textData.indexOf('{');
